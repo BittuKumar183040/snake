@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../components/Button';
 import SelectMenu from '../components/SelectMenu';
-import { MdStart } from 'react-icons/md';
 
 const Hero = () => {
   const SQUARE = 20;
-  const SPEED = useRef(200)
-  const AUTOSTART = useRef(true);
-
+  const SPEED = useRef(100);
+  const autostart = false;
   const runningStatus = useRef(false);
   let interval;
   let foodLoc;
@@ -35,9 +33,9 @@ const Hero = () => {
 
   const placeFood = () => {
     const places = document.querySelectorAll('.blank');
-    const foodLoc = places[Math.round(Math.random() * places.length)];
-    foodLoc && foodLoc.classList.replace('blank', 'food');
-    return foodLoc.id.split(',').map((prev) => parseInt(prev));
+    const foodLocDOM = places[Math.round(Math.random() * places.length)];
+    foodLocDOM && foodLocDOM.classList.replace('blank', 'food');
+    return foodLocDOM.id.split(',').map((prev) => parseInt(prev));
   };
 
   const isSnakeHead = (xc, yc) => {
@@ -52,7 +50,7 @@ const Hero = () => {
     checkHighScore();
     document.querySelector('.food').classList.replace('food', 'blank');
     runningStatus.current = false;
-    AUTOSTART.current && gameStarted();
+    autostart && gameStarted();
   };
 
   const checkHighScore = () => {
@@ -62,10 +60,43 @@ const Hero = () => {
     }
   };
 
-  let handleChange;
+  const handleChange = () => {
+    setSnakeBody((prevBody) => {
+      const nx = prevBody[0][0] + initConfig.current.x;
+      const ny = prevBody[0][1] + initConfig.current.y;
+      const newHead = [nx, ny];
+
+      if (
+        nx > SQUARE - 1 ||
+        ny > SQUARE - 1 ||
+        nx < 0 ||
+        ny < 0 ||
+        prevBody.some(([x, y]) => {
+          return newHead[0] === x && newHead[1] === y;
+        })
+      ) {
+        gameOver();
+      }
+
+      const copySnakeBody = prevBody.map((arr) => [...arr]);
+
+      if (foodLoc) {
+        if (foodLoc[0] === nx && foodLoc[1] === ny) {
+          copySnakeBody.push(foodLoc);
+          pointCount.current = pointCount.current + 1;
+          foodLoc = placeFood();
+        }
+      }
+
+      copySnakeBody.pop();
+      copySnakeBody.unshift(newHead);
+      return copySnakeBody;
+    });
+  };;
 
   const gameStarted = () => {
     runningStatus.current = true;
+    console.log(handleChange)
     interval = setInterval(handleChange, SPEED.current);
     pointCount.current = 0;
     foodLoc = placeFood();
@@ -109,43 +140,7 @@ const Hero = () => {
   };
 
   useEffect(() => {
-    handleChange = () => {
-      setSnakeBody((prevBody) => {
-        const nx = prevBody[0][0] + initConfig.current.x;
-        const ny = prevBody[0][1] + initConfig.current.y;
-        const newHead = [nx, ny];
-
-        if (
-          nx > SQUARE - 1 ||
-          ny > SQUARE - 1 ||
-          nx < 0 ||
-          ny < 0 ||
-          prevBody.some(([x, y]) => {
-            return newHead[0] === x && newHead[1] === y;
-          })
-        ) {
-          gameOver();
-        }
-
-        const copySnakeBody = prevBody.map((arr) => [...arr]);
-
-        if (foodLoc) {
-          if (foodLoc[0] === nx && foodLoc[1] === ny) {
-            copySnakeBody.push(foodLoc);
-            pointCount.current = pointCount.current + 1;
-            foodLoc = placeFood();
-          }
-        } else {
-          foodLoc = placeFood();
-        }
-
-        copySnakeBody.pop();
-        copySnakeBody.unshift(newHead);
-        return copySnakeBody;
-      });
-    };
-
-    AUTOSTART.current && gameStarted();
+    autostart && gameStarted();
     document.addEventListener('keydown', (e) => handleUserInput(e.code));
   }, []);
 
@@ -155,6 +150,7 @@ const Hero = () => {
       case 'KeyS':
       case 'KeyA':
       case 'KeyD':
+      case 'Enter':
         handleUserInput(key);
         break;
       default:
@@ -164,29 +160,31 @@ const Hero = () => {
 
   const gameModes = [
     {
-      id: "1",
-      name: "Easy"
+      id: '1',
+      name: 'Easy',
     },
     {
-      id: "2",
-      name: "Medium"
+      id: '2',
+      name: 'Medium',
     },
     {
-      id: "3",
-      name: "Expert"
+      id: '3',
+      name: 'Expert',
     },
-  ]
+  ];
 
   const handleModeSwitch = ({ id, name }) => {
-    console.log(SPEED.current)
-    if (id == 1) { SPEED.current = 200 }
-    if (id == 2) { SPEED.current = 100 }
-    if (id == 3) { SPEED.current = 50 }
-  }
-
-  const handleAutostart = () => {
-
-  }
+    console.log(SPEED.current);
+    if (id == 1) {
+      SPEED.current = 200;
+    }
+    if (id == 2) {
+      SPEED.current = 100;
+    }
+    if (id == 3) {
+      SPEED.current = 50;
+    }
+  };
 
   return (
     <section className=" h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
@@ -211,10 +209,15 @@ const Hero = () => {
             );
           });
         })}
-        <div className=" absolute -top-20 bg-white dark:bg-gray-800 p-2 w-full text-center rounded-lg flex justify-between ">
-          <div className={` flex gap-5 justify-end items-end ${runningStatus.current && "pointer-events-none"}`}>
-            <SelectMenu title={"Easy"} items={gameModes} handleClick={handleModeSwitch} />
-            <MdStart onClick={handleAutostart} size={26} className={` cursor-pointer ${AUTOSTART.current ? " bg-slate-500 text-white" : " bg-white text-black"} border p-1 rounded-md`} />
+        <div className={`absolute -top-20 bg-white dark:bg-gray-800 p-2 w-full text-center rounded-lg flex justify-between `}>
+          <div
+            className={` flex gap-5 justify-end items-end ${runningStatus.current && 'pointer-events-none'}`}
+          >
+            <SelectMenu
+              title={'Medium'}
+              items={gameModes}
+              handleClick={handleModeSwitch}
+            />
           </div>
           <div className="">
             <p className=" font-bold">
