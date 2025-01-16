@@ -33,8 +33,8 @@ const Hero = () => {
   const placeFood = () => {
     const places = document.querySelectorAll('.blank');
     const foodLoc = places[Math.round(Math.random() * places.length)];
-    foodLoc && foodLoc.classList.add('food');
-    return foodLoc.id.split(",").map((prev) => parseInt(prev))
+    foodLoc && foodLoc.classList.replace('blank', 'food');
+    return foodLoc.id.split(',').map((prev) => parseInt(prev));
   };
 
   const isSnakeHead = (xc, yc) => {
@@ -70,15 +70,14 @@ const Hero = () => {
         }
         if (foodLoc) {
           if (foodLoc[0] === nx && foodLoc[1] === ny) {
-            console.log("Found")
+            console.log('Found');
             pointCount.current = pointCount.current + 1;
-
-            foodLoc = placeFood()
+            foodLoc = placeFood();
           }
         } else {
-          foodLoc = placeFood()
+          foodLoc = placeFood();
         }
-
+        console.log('FOOD Places - ', foodLoc);
         const copySnakeBody = prevBody.map((arr) => [...arr]);
         copySnakeBody.pop();
         copySnakeBody.unshift(newHead);
@@ -88,7 +87,6 @@ const Hero = () => {
 
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Enter' || e.code === 'Space') {
-
         if (runningStatus === false) {
           runningStatus = true;
           interval = setInterval(handleChange, SPEED);
@@ -152,10 +150,12 @@ const Hero = () => {
             );
           });
         })}
-        <div className=' absolute -top-16 right-0 text-center p-1 w-44 bg-white rounded-lg flex flex-col'>
-          <p className=' font-bold'>High Score : <span>{highScore.current}</span></p>
-          <div className=' h-px w-3/4 mx-auto bg-gray-600'></div>
-          <p className=' font-medium'>{pointCount.current}</p>
+        <div className=" absolute -top-16 right-0 text-center p-1 w-44 bg-white rounded-lg flex flex-col">
+          <p className=" font-bold">
+            High Score : <span>{highScore.current}</span>
+          </p>
+          <div className=" h-px w-3/4 mx-auto bg-gray-600"></div>
+          <p className=" font-medium">{pointCount.current}</p>
         </div>
       </div>
     </section>
