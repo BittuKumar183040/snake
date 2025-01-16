@@ -68,17 +68,19 @@ const Hero = () => {
         ) {
           reset();
         }
+
+        const copySnakeBody = prevBody.map((arr) => [...arr]);
+
         if (foodLoc) {
           if (foodLoc[0] === nx && foodLoc[1] === ny) {
-            console.log('Found');
+            copySnakeBody.push(foodLoc);
             pointCount.current = pointCount.current + 1;
             foodLoc = placeFood();
           }
         } else {
           foodLoc = placeFood();
         }
-        console.log('FOOD Places - ', foodLoc);
-        const copySnakeBody = prevBody.map((arr) => [...arr]);
+
         copySnakeBody.pop();
         copySnakeBody.unshift(newHead);
         return copySnakeBody;
