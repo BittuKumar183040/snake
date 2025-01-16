@@ -3,11 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 const Hero = () => {
   const SQUARE = 20;
   const SPEED = 100;
-
   let runningStatus = false;
   let interval;
   let foodLoc;
-  let highScore = useRef(123);
+  let highScore = useRef(localStorage.getItem('highScore') || 0);
   let pointCount = useRef(0);
 
   const initConfig = {
@@ -41,13 +40,20 @@ const Hero = () => {
     return xc === snakeBody[0][0] && yc === snakeBody[0][1];
   };
 
-  const reset = () => {
+  const gameOver = () => {
     setSnakeBody(initConfig.pos);
     initConfig.x = 1;
     initConfig.y = 0;
     clearInterval(interval);
-    pointCount.current = 0;
+    checkHighScore();
     runningStatus = false;
+  };
+
+  const checkHighScore = () => {
+    if (highScore.current < pointCount.current) {
+      highScore.current = pointCount.current;
+      localStorage.setItem('highScore', pointCount.current);
+    }
   };
 
   useEffect(() => {
@@ -66,7 +72,7 @@ const Hero = () => {
             return newHead[0] === x && newHead[1] === y;
           })
         ) {
-          reset();
+          gameOver();
         }
 
         const copySnakeBody = prevBody.map((arr) => [...arr]);
@@ -87,11 +93,17 @@ const Hero = () => {
       });
     };
 
+    const gameStarted = () => {
+      runningStatus = true;
+      interval = setInterval(handleChange, SPEED);
+      pointCount.current = 0;
+      foodLoc = placeFood();
+    };
+
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Enter' || e.code === 'Space') {
         if (runningStatus === false) {
-          runningStatus = true;
-          interval = setInterval(handleChange, SPEED);
+          gameStarted();
           return;
         } else {
           runningStatus = false;
@@ -130,11 +142,11 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className=" h-dvh w-full bg-slate-200 flex flex-col justify-center items-center">
+    <section className=" h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
       <div className=" my-4 border-b border-gray-400 px-10 mr-48">
         <p className=" text-xl font-medium opacity-80">Snake Game</p>
       </div>
-      <div className="relative bg-white h-96 w-96 rounded-lg grid grid-cols-[repeat(20,_1fr)] shadow-2xl">
+      <div className="relative dark:bg-slate-700 bg-white h-96 w-96 rounded-lg grid grid-cols-[repeat(20,_1fr)] shadow-2xl">
         {GRID.map((row, yc) => {
           return row.map((cell, xc) => {
             return (
@@ -152,7 +164,7 @@ const Hero = () => {
             );
           });
         })}
-        <div className=" absolute -top-16 right-0 text-center p-1 w-44 bg-white rounded-lg flex flex-col">
+        <div className=" absolute -top-16 right-0 text-center p-1 w-44 rounded-lg flex flex-col">
           <p className=" font-bold">
             High Score : <span>{highScore.current}</span>
           </p>
