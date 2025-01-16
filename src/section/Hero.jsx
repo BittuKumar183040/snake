@@ -1,15 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
+import Button from '../components/Button';
+import SelectMenu from '../components/SelectMenu';
+import { MdStart } from 'react-icons/md';
 
 const Hero = () => {
   const SQUARE = 20;
-  const SPEED = 100;
-  let runningStatus = false;
+  const SPEED = useRef(200)
+  const AUTOSTART = useRef(true);
+
+  const runningStatus = useRef(false);
   let interval;
   let foodLoc;
   let highScore = useRef(localStorage.getItem('highScore') || 0);
   let pointCount = useRef(0);
-
-  const initConfig = {
+  const initConfig = useRef({
     x: 1,
     y: 0,
     pos: [
@@ -17,9 +21,9 @@ const Hero = () => {
       [2, 3],
       [1, 3],
     ],
-  };
+  });
 
-  const [snakeBody, setSnakeBody] = useState(initConfig.pos);
+  const [snakeBody, setSnakeBody] = useState(initConfig.current.pos);
 
   const GRID = Array.from({ length: SQUARE }, () => new Array(SQUARE).fill(''));
 
@@ -41,12 +45,14 @@ const Hero = () => {
   };
 
   const gameOver = () => {
-    setSnakeBody(initConfig.pos);
-    initConfig.x = 1;
-    initConfig.y = 0;
+    setSnakeBody(initConfig.current.pos);
+    initConfig.current.x = 1;
+    initConfig.current.y = 0;
     clearInterval(interval);
     checkHighScore();
-    runningStatus = false;
+    document.querySelector('.food').classList.replace('food', 'blank');
+    runningStatus.current = false;
+    AUTOSTART.current && gameStarted();
   };
 
   const checkHighScore = () => {
@@ -56,11 +62,57 @@ const Hero = () => {
     }
   };
 
+  let handleChange;
+
+  const gameStarted = () => {
+    runningStatus.current = true;
+    interval = setInterval(handleChange, SPEED.current);
+    pointCount.current = 0;
+    foodLoc = placeFood();
+  };
+
+  const handleUserInput = (keyCode) => {
+    if (keyCode === 'Enter' || keyCode === 'Space') {
+      if (runningStatus.current === false) {
+        gameStarted();
+        return;
+      } else {
+        return;
+      }
+    } else if (keyCode === 'KeyS') {
+      if (initConfig.current.x === 0 || initConfig.current.y === 1) {
+        return;
+      }
+      initConfig.current.y = 1;
+      initConfig.current.x = 0;
+    } else if (keyCode === 'KeyW') {
+      if (initConfig.current.x === 0 || initConfig.current.y === 1) {
+        return;
+      }
+
+      initConfig.current.y = -1;
+      initConfig.current.x = 0;
+    } else if (keyCode === 'KeyA') {
+      if (initConfig.current.x === 1 || initConfig.current.y === 0) {
+        return;
+      }
+
+      initConfig.current.x = -1;
+      initConfig.current.y = 0;
+    } else if (keyCode === 'KeyD') {
+      if (initConfig.current.x === 1 || initConfig.current.y === 0) {
+        return;
+      }
+      initConfig.current.x = 1;
+      initConfig.current.y = 0;
+    }
+  };
+
   useEffect(() => {
-    const handleChange = () => {
+    handleChange = () => {
       setSnakeBody((prevBody) => {
-        const nx = prevBody[0][0] + initConfig.x;
-        const ny = prevBody[0][1] + initConfig.y;
+        const nx = prevBody[0][0] + initConfig.current.x;
+        const ny = prevBody[0][1] + initConfig.current.y;
         const newHead = [nx, ny];
 
         if (
@@ -93,59 +145,54 @@ const Hero = () => {
       });
     };
 
-    const gameStarted = () => {
-      runningStatus = true;
-      interval = setInterval(handleChange, SPEED);
-      pointCount.current = 0;
-      foodLoc = placeFood();
-    };
-
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Enter' || e.code === 'Space') {
-        if (runningStatus === false) {
-          gameStarted();
-          return;
-        } else {
-          runningStatus = false;
-          clearInterval(interval);
-          return;
-        }
-      } else if (e.code === 'KeyS') {
-        if (initConfig.x === 0 || initConfig.y === 1) {
-          return;
-        }
-
-        initConfig.y = 1;
-        initConfig.x = 0;
-      } else if (e.code === 'KeyW') {
-        if (initConfig.x === 0 || initConfig.y === 1) {
-          return;
-        }
-
-        initConfig.y = -1;
-        initConfig.x = 0;
-      } else if (e.code === 'KeyA') {
-        if (initConfig.x === 1 || initConfig.y === 0) {
-          return;
-        }
-
-        initConfig.x = -1;
-        initConfig.y = 0;
-      } else if (e.code === 'KeyD') {
-        if (initConfig.x === 1 || initConfig.y === 0) {
-          return;
-        }
-        initConfig.x = 1;
-        initConfig.y = 0;
-      }
-    });
+    AUTOSTART.current && gameStarted();
+    document.addEventListener('keydown', (e) => handleUserInput(e.code));
   }, []);
+
+  const handleClick = (key) => {
+    switch (key) {
+      case 'KeyW':
+      case 'KeyS':
+      case 'KeyA':
+      case 'KeyD':
+        handleUserInput(key);
+        break;
+      default:
+        console.log(key + ' : not handled');
+    }
+  };
+
+  const gameModes = [
+    {
+      id: "1",
+      name: "Easy"
+    },
+    {
+      id: "2",
+      name: "Medium"
+    },
+    {
+      id: "3",
+      name: "Expert"
+    },
+  ]
+
+  const handleModeSwitch = ({ id, name }) => {
+    console.log(SPEED.current)
+    if (id == 1) { SPEED.current = 200 }
+    if (id == 2) { SPEED.current = 100 }
+    if (id == 3) { SPEED.current = 50 }
+  }
+
+  const handleAutostart = () => {
+
+  }
 
   return (
     <section className=" h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
-      <div className=" my-4 border-b border-gray-400 px-10 mr-48">
+      {/* <div className=" my-4 border-b border-gray-400 px-10 mr-48">
         <p className=" text-xl font-medium opacity-80">Snake Game</p>
-      </div>
+      </div> */}
       <div className="relative dark:bg-slate-700 bg-white h-96 w-96 rounded-lg grid grid-cols-[repeat(20,_1fr)] shadow-2xl">
         {GRID.map((row, yc) => {
           return row.map((cell, xc) => {
@@ -164,14 +211,21 @@ const Hero = () => {
             );
           });
         })}
-        <div className=" absolute -top-16 right-0 text-center p-1 w-44 rounded-lg flex flex-col">
-          <p className=" font-bold">
-            High Score : <span>{highScore.current}</span>
-          </p>
-          <div className=" h-px w-3/4 mx-auto bg-gray-600"></div>
-          <p className=" font-medium">{pointCount.current}</p>
+        <div className=" absolute -top-20 bg-white dark:bg-gray-800 p-2 w-full text-center rounded-lg flex justify-between ">
+          <div className={` flex gap-5 justify-end items-end ${runningStatus.current && "pointer-events-none"}`}>
+            <SelectMenu title={"Easy"} items={gameModes} handleClick={handleModeSwitch} />
+            <MdStart onClick={handleAutostart} size={26} className={` cursor-pointer ${AUTOSTART.current ? " bg-slate-500 text-white" : " bg-white text-black"} border p-1 rounded-md`} />
+          </div>
+          <div className="">
+            <p className=" font-bold">
+              High Score : <span>{highScore.current}</span>
+            </p>
+            <div className=" h-px w-3/4 mx-auto bg-gray-600"></div>
+            <p className=" font-medium">{pointCount.current}</p>
+          </div>
         </div>
       </div>
+      <Button clickedOn={handleClick} />
     </section>
   );
 };
