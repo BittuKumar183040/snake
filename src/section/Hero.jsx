@@ -24,7 +24,6 @@ const Hero = () => {
   const SPEED = useRef(100);
   const autostart = false;
   const runningStatus = useRef(false);
-  let interval;
   let foodLoc;
   let highScore = useRef(localStorage.getItem('highScore') || 0);
   let pointCount = useRef(0);
@@ -48,15 +47,29 @@ const Hero = () => {
     return foodLocDOM.id.split(',').map((prev) => parseInt(prev));
   };
 
+  const intervalRef = useRef(null);
+
   const gameOver = () => {
     setSnakeBody(initConfig.current.pos);
     initConfig.current.x = 1;
     initConfig.current.y = 0;
-    clearInterval(interval);
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+
     checkHighScore();
     document.querySelector('.food').classList.replace('food', 'blank');
     runningStatus.current = false;
-    autostart && gameStarted();
+
+    if (autostart) {
+      gameStarted();
+    }
+  };
+
+  const gameStarted = () => {
+    runningStatus.current = true;
+    intervalRef.current = setInterval(handleChange, SPEED.current);
+    pointCount.current = 0;
+    foodLoc = placeFood();
   };
 
   const checkHighScore = () => {
@@ -100,12 +113,7 @@ const Hero = () => {
     });
   };
 
-  const gameStarted = () => {
-    runningStatus.current = true;
-    interval = setInterval(handleChange, SPEED.current);
-    pointCount.current = 0;
-    foodLoc = placeFood();
-  };
+
 
   const handleUserInput = (keyCode) => {
     if (keyCode === 'Enter' || keyCode === 'Space') {
@@ -181,13 +189,11 @@ const Hero = () => {
 
         const deltaX = endX - startX;
         const deltaY = endY - startY;
-
-        let keyCode = '';
-
         if (Math.abs(deltaX) < 20 && Math.abs(deltaY) < 20) {
           return;
         }
 
+        let keyCode = '';
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
           keyCode = deltaX > 0 ? 'KeyD' : 'KeyA';
         } else {
@@ -197,7 +203,6 @@ const Hero = () => {
       };
     } else {
       setControlActive(0);
-
       keyDownHandler = (e) => handleUserInput(e.code);
       document.addEventListener('keydown', keyDownHandler);
     }
@@ -207,9 +212,7 @@ const Hero = () => {
     if (controlActive === null) {
       return;
     }
-    console.log(controlActive);
     if (controlActive === 2) {
-      console.log('Added Touch Event');
       document.addEventListener('touchmove', touchMoveHandler, {
         passive: false,
       });
@@ -217,7 +220,6 @@ const Hero = () => {
       document.addEventListener('touchend', touchEndHandler);
     }
     if (controlActive !== 2) {
-      console.log('Removed Touch Event');
       document.removeEventListener('touchstart', touchStartHandler);
       document.removeEventListener('touchend', touchEndHandler);
     }
@@ -247,7 +249,6 @@ const Hero = () => {
     if (id == 2) {
       SPEED.current = 50;
     }
-    console.log('speed changed to : ', SPEED.current);
   };
   const handleControlSwitch = ({ id }) => {
     setControlActive(id);
@@ -287,7 +288,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <div className=" flex gap-4 bg-slate-100 dark:bg-slate-900 p-2 rounded-b-lg">
+      <div id="mainControl" className=" flex gap-4 bg-slate-100 dark:bg-slate-900 p-2 rounded-b-lg">
         <SingleBtn
           keyCode={'Enter'}
           label={'Space'}
