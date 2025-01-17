@@ -240,7 +240,6 @@ const Hero = () => {
     if (id == 2) {
       SPEED.current = 50;
     }
-    console.log('speed changed to : ', SPEED.current);
   };
   const handleControlSwitch = ({ id }) => {
     setControlActive(id);
@@ -250,7 +249,8 @@ const Hero = () => {
     <section className=" select-none h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
       <div
         id="canvas"
-        className="relative dark:bg-slate-700 bg-white h-96 w-96 rounded-lg grid grid-cols-[repeat(20,_1fr)] shadow-2xl"
+        style={{ height: `${SQUARE * 22}px`, width: `${SQUARE * 22}px` }}
+        className={`relative dark:bg-slate-700 bg-white rounded-lg grid grid-cols-[repeat(${SQUARE},_1fr)] shadow-2xl`}
       >
         <Area snakeBody={snakeBody} />
         <div
