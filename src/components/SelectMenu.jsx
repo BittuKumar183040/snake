@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { FaAngleDown } from 'react-icons/fa';
 import { FaAngleUp } from 'react-icons/fa';
 
-const SelectMenu = ({ title, items, handleClick }) => {
+const SelectMenu = ({ title, items, position = 'bottom', handleClick }) => {
   const [toggle, setToggle] = useState(false);
   const [label, setLabel] = useState(title);
   const popupRef = useRef('');
@@ -25,19 +25,21 @@ const SelectMenu = ({ title, items, handleClick }) => {
     setLabel(item.name);
     setToggle(false);
   };
-
+  const height = 25 * items.length;
   return (
-    <div ref={popupRef} className=" relative">
+    <div ref={popupRef} className=" relative select-none">
       <div
         onClick={() => setToggle(!toggle)}
-        className="flex gap-2 items-center text-sm rounded-md border px-2 p-0.5 cursor-pointer"
+        className="flex gap-2 justify-between items-center text-sm rounded-md border px-2 p-0.5 cursor-pointer"
       >
         <p>{label}</p>
         {toggle ? <FaAngleUp /> : <FaAngleDown />}
       </div>
 
       <div
-        className={`${toggle ? ' h-[74px] max-w-36 opacity-100' : 'h-0 w-0 opacity-0'} bg-white min-w-24 border rounded-lg backdrop-blur-md bg-opacity-80 absolute top-8 right-0 transition-all`}
+        style={{ height: height + 'px' }}
+        className={` dark:bg-gray-400 ${toggle ? ` max-w-36 transition-all opacity-100 overflow-hidden ` : 'h-0 w-0 opacity-0'} bg-white min-w-24 border rounded-lg backdrop-blur-md bg-opacity-80 absolute 
+          ${position === 'top' ? `-top-20` : 'top-8'} right-0`}
       >
         {items.map((item) => (
           <p
@@ -45,7 +47,7 @@ const SelectMenu = ({ title, items, handleClick }) => {
             title={item.name}
             id={item.id}
             onClick={() => handleItemClick(item)}
-            className=" cursor-pointer whitespace-nowrap p-1 pr-3 hover:bg-gray-200 text-xs bg-opacity-30 transition-all"
+            className=" cursor-pointer whitespace-nowrap p-1 pr-3 hover:bg-gray-500 hover:text-white font-semibold text-xs bg-opacity-30 transition-all"
           >
             {item.name}
           </p>
