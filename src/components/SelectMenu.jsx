@@ -35,10 +35,9 @@ const SelectMenu = ({ title, items, position = 'bottom', handleClick }) => {
         <p>{label}</p>
         {toggle ? <FaAngleUp /> : <FaAngleDown />}
       </div>
-
       <div
-        style={{ height: height + 'px' }}
-        className={` dark:bg-gray-400 ${toggle ? ` max-w-36 transition-all opacity-100 overflow-hidden ` : 'h-0 w-0 opacity-0'} bg-white min-w-24 border rounded-lg backdrop-blur-md bg-opacity-80 absolute 
+        style={{ height: toggle ? height + 'px' : '0px' }}
+        className={` dark:bg-gray-400 ${toggle ? ` max-w-36 transition-all opacity-100 overflow-hidden ` : 'opacity-0 overflow-hidden bg-red-900 pointer-events-none '} bg-white min-w-24 border rounded-lg backdrop-blur-md bg-opacity-80 absolute 
           ${position === 'top' ? `-top-20` : 'top-8'} right-0`}
       >
         {items.map((item) => (

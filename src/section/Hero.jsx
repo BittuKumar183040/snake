@@ -195,14 +195,8 @@ const Hero = () => {
         }
         handleUserInput(keyCode);
       };
-
-      document.addEventListener('touchmove', touchMoveHandler, {
-        passive: false,
-      });
-      document.addEventListener('touchstart', touchStartHandler);
-      document.addEventListener('touchend', touchEndHandler);
     } else {
-      setControlActive(1);
+      setControlActive(0);
 
       keyDownHandler = (e) => handleUserInput(e.code);
       document.addEventListener('keydown', keyDownHandler);
@@ -210,7 +204,20 @@ const Hero = () => {
   }, []);
 
   useEffect(() => {
-    if (controlActive === 1) {
+    if (controlActive === null) {
+      return;
+    }
+    console.log(controlActive);
+    if (controlActive === 2) {
+      console.log('Added Touch Event');
+      document.addEventListener('touchmove', touchMoveHandler, {
+        passive: false,
+      });
+      document.addEventListener('touchstart', touchStartHandler);
+      document.addEventListener('touchend', touchEndHandler);
+    }
+    if (controlActive !== 2) {
+      console.log('Removed Touch Event');
       document.removeEventListener('touchstart', touchStartHandler);
       document.removeEventListener('touchend', touchEndHandler);
     }
@@ -231,9 +238,15 @@ const Hero = () => {
   };
 
   const handleModeSwitch = ({ id }) => {
-    if (id == 0) { SPEED.current = 200 }
-    if (id == 1) { SPEED.current = 100 }
-    if (id == 2) { SPEED.current = 50 }
+    if (id == 0) {
+      SPEED.current = 200;
+    }
+    if (id == 1) {
+      SPEED.current = 100;
+    }
+    if (id == 2) {
+      SPEED.current = 50;
+    }
     console.log('speed changed to : ', SPEED.current);
   };
   const handleControlSwitch = ({ id }) => {
@@ -244,7 +257,11 @@ const Hero = () => {
     <section className=" select-none h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
       <div
         id="canvas"
-        style={{ height: `${SQUARE * 20}px`, width: `${SQUARE * 20}px`, gridTemplateColumns: `repeat(${SQUARE}, 1fr)` }}
+        style={{
+          height: `${SQUARE * 20}px`,
+          width: `${SQUARE * 20}px`,
+          gridTemplateColumns: `repeat(${SQUARE}, 1fr)`,
+        }}
         className={`relative dark:bg-slate-700 bg-white rounded-lg grid shadow-2xl`}
       >
         <Area snakeBody={snakeBody} />
