@@ -9,7 +9,7 @@
 }
 
 #canvas div.head {
-  background-image: linear-gradient(#009144, #009144);
+  background-image: linear-gradient(#01853f, #01853f);
   transform: scale(1.4);
   position: relative;
 }
