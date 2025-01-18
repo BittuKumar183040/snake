@@ -1,0 +1,146 @@
+.snake-container {
+  background-image: url('../assets/Tiles/tile_0000.png');
+}
+
+#canvas div.snake {
+  background-image: linear-gradient(#009144, #009144);
+  border-radius: 3px;
+  transform: scale(1.1);
+}
+
+#canvas div.head {
+  background-image: linear-gradient(#009144, #009144);
+  transform: scale(1.4);
+  position: relative;
+}
+
+#canvas .food {
+  background: #eaa56c;
+  background-image: url('../assets/apple.png');
+  background-size: cover;
+}
+
+#canvas .food2 {
+  background: #eaa56c;
+  background-image: url('../assets/power.png');
+  background-size: cover;
+}
+
+.blank {
+  background-color: #eaa56c;
+  background-size: contain;
+  background-image: url('../assets/Tiles/tile_0025.png');
+}
+
+#\30 _0 {
+  background-image: url('../assets/Tiles/tile_0012.png');
+}
+
+#\32 1_0 {
+  background-image: url('../assets/Tiles/tile_0014.png');
+}
+
+#\30 _21 {
+  background-image: url('../assets/Tiles/tile_0036.png');
+}
+
+#\32 1_21 {
+  background-image: url('../assets/Tiles/tile_0038.png');
+}
+
+/* topborder */
+#\31 _0,
+#\32 _0,
+#\33 _0,
+#\34 _0,
+#\35 _0,
+#\36 _0,
+#\37 _0,
+#\38 _0,
+#\39 _0,
+#\31 0_0,
+#\31 1_0,
+#\31 2_0,
+#\31 3_0,
+#\31 4_0,
+#\31 5_0,
+#\31 6_0,
+#\31 7_0,
+#\31 8_0,
+#\31 9_0,
+#\32 0_0 {
+  background-image: url('../assets/Tiles/tile_0013.png');
+}
+
+/* bottom */
+#\31 _21,
+#\32 _21,
+#\33 _21,
+#\34 _21,
+#\35 _21,
+#\36 _21,
+#\37 _21,
+#\38 _21,
+#\39 _21,
+#\31 0_21,
+#\31 1_21,
+#\31 2_21,
+#\31 3_21,
+#\31 4_21,
+#\31 5_21,
+#\31 6_21,
+#\31 7_21,
+#\31 8_21,
+#\31 9_21,
+#\32 0_21 {
+  background-image: url('../assets/Tiles/tile_0037.png');
+}
+
+/* leftborder */
+#\30 _1,
+#\30 _2,
+#\30 _3,
+#\30 _4,
+#\30 _5,
+#\30 _6,
+#\30 _7,
+#\30 _8,
+#\30 _9,
+#\30 _10,
+#\30 _11,
+#\30 _12,
+#\30 _13,
+#\30 _14,
+#\30 _15,
+#\30 _16,
+#\30 _17,
+#\30 _18,
+#\30 _18,
+#\30 _19,
+#\30 _20 {
+  background-image: url('../assets/Tiles/tile_0024.png');
+}
+
+/* rightborder */
+#\32 1_1,
+#\32 1_2,
+#\32 1_3,
+#\32 1_4,
+#\32 1_5,
+#\32 1_6,
+#\32 1_7,
+#\32 1_8,
+#\32 1_9,
+#\32 1_10,
+#\32 1_11,
+#\32 1_12,
+#\32 1_13,
+#\32 1_14,
+#\32 1_15,
+#\32 1_16,
+#\32 1_17,
+#\32 1_18,
+#\32 1_19,
+#\32 1_20 {
+  background-image: url('../assets/Tiles/tile_0026.png');
+}

@@ -1,32 +1,19 @@
-@import url('https://fonts.googleapis.com/css2?family=Indie+Flower&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mystery+Quest&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Mystery Quest', serif;
   margin: 0;
   padding: 0;
 }
 
-.food {
-  background-image: radial-gradient(red, orange);
-  border-radius: 50%;
-}
-
-.snake {
-  background-color: rgb(104, 160, 75);
-  background-size: cover;
-  border-radius: 3px;
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
-  transform: scale(1.1);
-}
-
-.head {
-  background-color: rgb(104, 160, 75);
-  background-image: linear-gradient();
-  transform: scale(1.4);
-  position: relative;
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
 }
 
 @media only screen and (max-width: 474px) {
@@ -52,5 +39,32 @@
 @media only screen and (max-width: 330px) {
   #canvas {
     transform: scale(0.6);
+  }
+}
+
+@media (max-height: 815px) {
+  .menu-container {
+    transform: translateY(15px);
+  }
+
+  .snake-container {
+    flex-direction: row;
+  }
+
+  .control-container {
+    position: absolute;
+    right: 0px;
+    bottom: 220px;
+  }
+}
+
+@media (max-height: 815px) {
+  .menu-container {
+    position: absolute;
+    left: 450px;
+    top: 0px;
+    flex-direction: column;
+    width: 200px;
+    gap: 10px;
   }
 }

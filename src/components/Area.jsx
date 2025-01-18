@@ -21,7 +21,7 @@ const Area = ({ snakeBody }) => {
           return (
             <div
               key={`${xc}${yc}`}
-              id={`${xc},${yc}`}
+              id={`${xc}_${yc}`}
               className={
                 isSnakeBody(xc, yc)
                   ? isSnakeHead(xc, yc)

@@ -1,22 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Button, { btnSize, btnStyle } from '../components/Button';
+import Button from '../components/Button';
 import SelectMenu from '../components/SelectMenu';
-import SingleBtn from '../components/SingleBtn';
-import { CgPlayButton } from 'react-icons/cg';
-import { BiReset } from 'react-icons/bi';
 import Area from '../components/Area';
+import startBtn from '../assets/startBtn.png';
+import reset from '../assets/reset.png';
+import highScoreImg from '../assets/highScore.png';
+import gauge from '../assets/gauge.png';
+
+import energetic from '../assets/speed/energetic.png';
+import anaconda from '../assets/speed/anaconda.png';
+import snail from '../assets/speed/snail.png';
+
+import keyboard from '../assets/controls/keyboard.png';
+import desktop from '../assets/controls/desktop.png';
+import touch from '../assets/controls/touch.png';
 
 const controls = [
-  { id: 0, name: 'External' },
-  { id: 1, name: 'V-Keys' },
-  { id: 2, name: 'Touch' },
+  { id: 0, name: 'External', img: keyboard },
+  { id: 1, name: 'V-Keys', img: desktop },
+  { id: 2, name: 'Touch', img: touch },
 ];
 
 const gameModes = [
-  { id: 0, name: 'Easy' },
-  { id: 1, name: 'Medium' },
-  { id: 2, name: 'Expert' },
+  { id: 0, name: 'Easy', img: snail },
+  { id: 1, name: 'Medium', img: anaconda },
+  { id: 2, name: 'Expert', img: energetic },
 ];
+
+const powerUpAt = [3, 12, 18, 30, 42, 60, 85];
+
 let touchMoveHandler, touchStartHandler, touchEndHandler, keyDownHandler;
 export const SQUARE = 22;
 
@@ -25,6 +37,7 @@ const Hero = () => {
   const autostart = false;
   const runningStatus = useRef(false);
   let foodLoc;
+  let powerLoc = null;
   let highScore = useRef(localStorage.getItem('highScore') || 0);
   let pointCount = useRef(0);
   const initConfig = useRef({
@@ -40,11 +53,11 @@ const Hero = () => {
   const [snakeBody, setSnakeBody] = useState(initConfig.current.pos);
   const [controlActive, setControlActive] = useState(null);
 
-  const placeFood = () => {
+  const placeFood = (type = 'food') => {
     const places = document.querySelectorAll('.blank');
     const foodLocDOM = places[Math.round(Math.random() * places.length)];
-    foodLocDOM && foodLocDOM.classList.replace('blank', 'food');
-    return foodLocDOM.id.split(',').map((prev) => parseInt(prev));
+    foodLocDOM && foodLocDOM.classList.replace('blank', type);
+    return foodLocDOM.id.split('_').map((prev) => parseInt(prev));
   };
 
   const intervalRef = useRef(null);
@@ -55,11 +68,14 @@ const Hero = () => {
     initConfig.current.y = 0;
     clearInterval(intervalRef.current);
     intervalRef.current = null;
-
     checkHighScore();
-    document.querySelector('.food').classList.replace('food', 'blank');
     runningStatus.current = false;
-
+    try {
+      document.querySelector('.food')?.classList.replace('food', 'blank');
+      document.querySelector('.food2')?.classList.replace('food2', 'blank');
+    } catch (e) {
+      console.log('No food spoted for removal', e);
+    }
     if (autostart) {
       gameStarted();
     }
@@ -77,6 +93,36 @@ const Hero = () => {
       highScore.current = pointCount.current;
       localStorage.setItem('highScore', pointCount.current);
     }
+  };
+
+  const foodEaten = (copySnakeBody, head_x, head_y) => {
+    let timer;
+    if (foodLoc) {
+      if (foodLoc[0] === head_x && foodLoc[1] === head_y) {
+        copySnakeBody.push(foodLoc);
+        pointCount.current = pointCount.current + 1;
+        foodLoc = placeFood();
+
+        if (powerUpAt.includes(pointCount.current) && powerLoc === null) {
+          powerLoc = placeFood('food2');
+          timer = setTimeout(() => {
+            clearTimeout(timer);
+            powerLoc = null;
+            document
+              .querySelector('.food2')
+              ?.classList.replace('food2', 'blank');
+          }, 5000);
+        }
+      }
+    }
+    if (powerLoc) {
+      if (powerLoc[0] === head_x && powerLoc[1] === head_y) {
+        pointCount.current = pointCount.current + 3;
+        clearTimeout(timer);
+        powerLoc = null;
+      }
+    }
+    return copySnakeBody;
   };
 
   const handleChange = () => {
@@ -97,23 +143,14 @@ const Hero = () => {
         gameOver();
       }
 
-      const copySnakeBody = prevBody.map((arr) => [...arr]);
-
-      if (foodLoc) {
-        if (foodLoc[0] === nx && foodLoc[1] === ny) {
-          copySnakeBody.push(foodLoc);
-          pointCount.current = pointCount.current + 1;
-          foodLoc = placeFood();
-        }
-      }
+      let copySnakeBody = prevBody.map((arr) => [...arr]);
+      copySnakeBody = foodEaten(copySnakeBody, nx, ny);
 
       copySnakeBody.pop();
       copySnakeBody.unshift(newHead);
       return copySnakeBody;
     });
   };
-
-
 
   const handleUserInput = (keyCode) => {
     if (keyCode === 'Enter' || keyCode === 'Space') {
@@ -133,6 +170,7 @@ const Hero = () => {
       if (initConfig.current.x === 0 || initConfig.current.y === 1) {
         return;
       }
+
       initConfig.current.y = 1;
       initConfig.current.x = 0;
     } else if (keyCode === 'KeyW' || keyCode === 'ArrowUp') {
@@ -153,6 +191,7 @@ const Hero = () => {
       if (initConfig.current.x === 1 || initConfig.current.y === 0) {
         return;
       }
+
       initConfig.current.x = 1;
       initConfig.current.y = 0;
     }
@@ -255,7 +294,7 @@ const Hero = () => {
   };
 
   return (
-    <section className=" select-none h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
+    <section className="snake-container select-none h-dvh w-full bg-slate-200 dark:bg-black dark:text-white flex flex-col justify-center items-center">
       <div
         id="canvas"
         style={{
@@ -263,55 +302,54 @@ const Hero = () => {
           width: `${SQUARE * 20}px`,
           gridTemplateColumns: `repeat(${SQUARE}, 1fr)`,
         }}
-        className={`relative dark:bg-slate-700 bg-white rounded-lg grid shadow-2xl`}
+        className={`relative dark:bg-slate-700 bg-white rounded-lg grid`}
       >
         <Area snakeBody={snakeBody} />
         <div
-          className={`absolute -top-20 bg-white dark:bg-gray-800 p-2 w-full text-center rounded-lg flex justify-between `}
+          className={`menu-container absolute -top-24 bg-white dark:bg-gray-800 p-2 w-full text-center rounded-lg flex justify-between `}
         >
           <div
             className={` flex gap-5 justify-end items-end ${runningStatus.current && 'pointer-events-none'}`}
           >
             <SelectMenu
-              title={gameModes[1].name}
+              activeId={1}
               items={gameModes}
               handleClick={handleModeSwitch}
             />
           </div>
-          <div className="">
-            <p className=" font-bold">
-              High Score : <span>{highScore.current}</span>
-            </p>
-            <div className=" h-px w-3/4 mx-auto bg-gray-600"></div>
-            <p className=" font-medium">{pointCount.current}</p>
+          <div>
+            <div className=" flex gap-2 items-end justify-between">
+              <img src={highScoreImg} alt="" className="" />
+              <p className=" font-bold">
+                High Score : <span>{highScore.current}</span>
+              </p>
+            </div>
+            <div className=" h-px mx-auto bg-gray-400"></div>
+            <div className=" flex items-center justify-between">
+              <img src={gauge} alt="" className="" />
+              <p className=" font-medium">{pointCount.current}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div id="mainControl" className=" flex gap-4 bg-slate-100 dark:bg-slate-900 p-2 rounded-b-lg">
-        <SingleBtn
-          keyCode={'Enter'}
-          label={'Space'}
-          logo={
-            <CgPlayButton
-              size={40}
-              className={
-                ' text-gray-900 w-32 dark:text-gray-200 pointer-events-none'
-              }
-            />
-          }
+      <div className=" flex gap-4 dark:bg-slate-900 p-2 rounded-lg">
+        <img
+          className={` shadow-2xl rounded-xl h-16 active:scale-80 transition-all cursor-pointer ${runningStatus.current && ' opacity-70 scale-90'}`}
+          src={startBtn}
           onClick={() => handleClick('Enter')}
+          alt=""
         />
-        <SingleBtn
-          keyCode={'Reset'}
-          label={'Reset'}
+        <img
+          className=" h-16 active:scale-90 cursor-pointer scale-75 rounded-2xl "
+          src={reset}
           onClick={() => location.reload()}
-          logo={<BiReset size={btnSize} className={btnStyle + ' p-3 '} />}
+          alt=""
         />
       </div>
 
       {controlActive !== null && (
-        <div className=" mt-4 ">
+        <div className=" control-container mt-4 ">
           {
             {
               0: (
@@ -332,7 +370,7 @@ const Hero = () => {
           <div className=" flex gap-4 items-center border text-sm border-gray-300 border-b-0 rounded-t-xl bg-gray-100 dark:bg-gray-800 p-2">
             <p>Control Type</p>
             <SelectMenu
-              title={controls[controlActive].name}
+              activeId={controlActive}
               items={controls}
               position={'top'}
               handleClick={handleControlSwitch}
